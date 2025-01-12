@@ -148,8 +148,8 @@
             // Add a new task
             fetch('/api/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(taskData) })
             .then(() => {
-                alert(JSON.stringify(taskData));
-                console.log(JSON.stringify(taskData))
+                @* alert(JSON.stringify(taskData));
+                console.log(JSON.stringify(taskData)) *@
                 fetchTasks();  // Reload tasks
                 resetForm();   // Reset the form
             });
