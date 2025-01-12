@@ -12,10 +12,10 @@ namespace TaskManager.Models
 
         [Required]
         [StringLength(100)] // Limiting the title length to 100 characters
-        public string Title { get; set; } // Title or name of the task
+        public required string Title { get; set; } // Title or name of the task
 
         [StringLength(500)] // Limiting the description length to 500 characters
-        public string Description { get; set; } // Description of the task
+        public string? Description { get; set; } // Description of the task
 
         public bool IsCompleted { get; set; } // Whether the task is completed or not
 

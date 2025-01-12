@@ -28,6 +28,7 @@ namespace TaskManager.Controllers
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks(){
+            Console.WriteLine("WE ARE GETTING ALL THE TASKS");
             return await _context.Tasks.ToListAsync();
         }
 
@@ -45,6 +46,9 @@ namespace TaskManager.Controllers
 
         [HttpPost] // create a new record
         public async Task<ActionResult<TaskItem>> PostTaskItem(TaskItem taskItem){
+            Console.WriteLine("WE ARE INSIDE POST API");
+
+
             _context.Tasks.Add(taskItem); //adding
             await _context.SaveChangesAsync(); //waiting for changes "making it official"
 
@@ -56,7 +60,13 @@ namespace TaskManager.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTaskItem(int id, TaskItem taskItem){
             if (id != taskItem.Id)
-            {
+            {   
+
+                Console.WriteLine("id");
+                Console.WriteLine(id);
+                Console.WriteLine("taskITem");
+                Console.WriteLine(taskItem.Id);
+                Console.WriteLine("WE GOT A BAD REQUEST IDS DONT MATCH");
                 return BadRequest();
             }
 

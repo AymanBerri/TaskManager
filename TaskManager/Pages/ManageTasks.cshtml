@@ -13,6 +13,8 @@
         <tr>
             <th>Task Name</th>
             <th>Status</th>
+            <th>Description</th>  
+            <th>Due Date</th>     
             <th>Actions</th>
         </tr>
     </thead>
@@ -22,16 +24,26 @@
 </table>
 
 <!-- Add New Task Form -->
-<h3>Add New Task</h3>
-<form id="add-task-form">
+<h3 id="form-header">Add New Task</h3> <!-- Updated to dynamically change -->
+<form id="task-form">
     <div class="mb-3">
-        <label for="task-name" class="form-label">Task Name</label>
-        <input type="text" id="task-name" class="form-control" required />
+        <label for="task-title" class="form-label">Task</label>
+        <input type="text" id="task-title" class="form-control" required />
     </div>
     <div class="mb-3">
-        <button type="submit" class="btn btn-primary">Add Task</button>
+        <label for="task-description" class="form-label">Task Description</label>
+        <textarea id="task-description" class="form-control"></textarea>
+    </div>
+    <div class="mb-3">
+        <label for="task-due-date" class="form-label">Due Date</label>
+        <input type="date" id="task-due-date" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Add Task</button> <!-- Updated to dynamically change -->
     </div>
 </form>
+
+
 
 <script>
     // Fetch tasks from the API
@@ -44,8 +56,10 @@
                 tasks.forEach(task => {
                     taskList.innerHTML += `
                         <tr>
-                            <td>${task.name}</td>
+                            <td>${task.title}</td>
                             <td>${task.completed ? 'Completed' : 'Pending'}</td>
+                            <td>${task.description}</td>  <!-- New Column -->
+                            <td>${task.dueDate}</td>      <!-- New Column -->
                             <td>
                                 <button class="btn btn-warning btn-sm" onclick="editTask(${task.id})">Edit</button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteTask(${task.id})">Delete</button>
@@ -56,26 +70,71 @@
             });
     }
 
-    // Add new task
-    document.getElementById('add-task-form').addEventListener('submit', function (e) {
+
+    // Add/Edit Task
+    let editingTaskId = null; // To track if a task is being edited
+    document.getElementById('task-form').addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const taskName = document.getElementById('task-name').value;
-        const taskData = { name: taskName, completed: false };
+        const taskData = {
+            id: editingTaskId,
+            title: document.getElementById('task-title').value,
+            description: document.getElementById('task-description').value,
+            dueDate: document.getElementById('task-due-date').value,
+            completed: false
+        };
 
-        fetch('/api/tasks', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(taskData)
-        })
-        .then(response => response.json())
-        .then(() => {
-            fetchTasks();  // Reload tasks
-            document.getElementById('task-name').value = '';  // Clear input
-        });
+        if (editingTaskId) {
+            // If editing, update the existing task
+            fetch(`/api/tasks/${editingTaskId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(taskData)
+            })
+            .then(() => {
+                fetchTasks();  // Reload tasks
+                resetForm();   // Reset the form for adding new tasks
+            });
+
+
+
+
+        } else {
+            // Add a new task
+            fetch('/api/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(taskData) })
+            .then(() => {
+                fetchTasks();  // Reload tasks
+                resetForm();   // Reset the form
+            });
+        }
     });
+
+
+
+    //-- called when WE click the edited button,-- this populates the form with the taskData and sets the variable
+
+    function editTask(id) {
+        fetch(`/api/tasks/${id}`)
+            .then(response => response.json())
+            .then(task => {
+                // Format the due date
+                const dueDate = new Date(task.dueDate);
+                const formattedDate = dueDate.toISOString().split('T')[0];
+
+                // Populate the form
+                document.getElementById('task-title').value = task.title;
+                document.getElementById('task-description').value = task.description;
+                document.getElementById('task-due-date').value = formattedDate;
+
+                // Change form header and button text
+                document.getElementById('form-header').textContent = 'Edit Task';
+                document.querySelector('button[type="submit"]').textContent = 'Update Task';
+
+                // Store the task ID for later use in the submit handler
+                editingTaskId = id;
+            });
+    }
+
 
     // Delete task
     function deleteTask(id) {
@@ -87,12 +146,16 @@
         });
     }
 
-    // Edit task (not yet implemented)
-    function editTask(id) {
-        // You can implement this function to update tasks
-        alert(`Edit task with id: ${id}`);
-    }
 
+    // Resetting the form values
+    function resetForm() {
+        document.getElementById('task-title').value = '';
+        document.getElementById('task-description').value = '';
+        document.getElementById('task-due-date').value = '';
+        document.getElementById('form-header').textContent = 'Add New Task';
+        document.querySelector('button[type="submit"]').textContent = 'Add Task';
+        editingTaskId = null;  // Clear the task being edited
+    }
     // Initial task list fetch
     fetchTasks();
 </script>
