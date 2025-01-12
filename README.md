@@ -23,14 +23,31 @@ A simple and user-friendly web application to manage tasks. Users can create, up
 
    git clone https://github.com/AymanBerri/TaskManager.git
 
+
 2. **Install dependencies:**
-   - For the backend, ensure you have .NET SDK installed.
-   - For the frontend, make sure you have a browser for testing.
+    ### Backend Dependencies (ASP.NET Core)
+
+    - **Microsoft.AspNetCore.Mvc**: For building the Web API.
+    - **Microsoft.EntityFrameworkCore**: For database access with Entity Framework Core.
+    - **Microsoft.EntityFrameworkCore.SqlServer**: For SQL Server integration with Entity Framework Core.
+    - **Microsoft.EntityFrameworkCore.Tools**: For EF Core tools like migrations.
+
+    ### Frontend Dependencies
+
+    - **Bootstrap**: For styling the frontend (task list table, forms, etc.).
+    - **jQuery** (Optional): For DOM manipulation if needed.
+
+    ### Database
+
+    - **SQL Server**: This project uses SQL Server as the database. Ensure that you have SQL Server installed and configured on your machine or server for the application to work properly.
+
 
 3. **Set up the database:**
-   - Run the necessary migration commands to set up your database.
+    1. Create the initial migration:
+    ``` dotnet ef migrations add InitialCreate ```
 
-   ```dotnet ef database update```
+    2. Update the database to apply the migration:
+    ``` dotnet ef database update```
 
 4. **Configure the environment:**
    - Make sure your `appsettings.json` contains the correct connection string to the database.
