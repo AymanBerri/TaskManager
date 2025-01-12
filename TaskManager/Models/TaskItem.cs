@@ -17,8 +17,8 @@ namespace TaskManager.Models
         [StringLength(500)] // Limiting the description length to 500 characters
         public string? Description { get; set; } // Description of the task
 
-        public bool IsCompleted { get; set; } // Whether the task is completed or not
-
+        public TaskStatus Status { get; set; } = TaskStatus.Pending; // Status of the task
+        
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Timestamp for when the task was created
 
         public DateTime? DueDate { get; set; } // Optional due date for the task

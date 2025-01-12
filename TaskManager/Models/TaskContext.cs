@@ -9,14 +9,21 @@ namespace TaskManager.Models
 {
     public class TaskContext : DbContext
     {
-        
+
+        public DbSet<TaskItem> Tasks { get; set; }
+
         public TaskContext(DbContextOptions<TaskContext> options)
             :base(options)
             {
 
             }
 
-        public DbSet<TaskItem> Tasks { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TaskItem>().Property(t => t.Status)
+                .HasConversion<string>(); // Converts the enum to a string for storage
+        }
+
 
     }
 }

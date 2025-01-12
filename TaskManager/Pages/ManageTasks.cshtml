@@ -5,75 +5,112 @@
 }
 
 
-<h2>Manage Tasks</h2>
+<div class="container my-5">
+    <h2 class="text-center mb-4">Manage Tasks</h2>
 
-<!-- Task List -->
-<table class="table">
-    <thead>
-        <tr>
-            <th>Task Name</th>
-            <th>Status</th>
-            <th>Description</th>  
-            <th>Due Date</th>     
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody id="task-list">
-        <!-- Task list will be dynamically populated here -->
-    </tbody>
-</table>
+    <!-- Task List -->
+    <table class="table table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Task Name</th>
+                <th scope="col">Status</th>
+                <th scope="col">Description</th>  
+                <th scope="col">Due Date</th>     
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="task-list">
+            <!-- Task list will be dynamically populated here -->
+        </tbody>
+    </table>
 
-<!-- Add New Task Form -->
-<h3 id="form-header">Add New Task</h3> <!-- Updated to dynamically change -->
-<form id="task-form">
-    <div class="mb-3">
-        <label for="task-title" class="form-label">Task</label>
-        <input type="text" id="task-title" class="form-control" required />
+    <!-- Add/Edit Task Form -->
+    <div class="card mt-5">
+        <div class="card-header">
+            <h3 id="form-header">Add New Task</h3>
+        </div>
+        <div class="card-body">
+            <form id="task-form">
+                <div class="form-group">
+                    <label for="task-title">Task</label>
+                    <input type="text" id="task-title" class="form-control" placeholder="Enter task title" required />
+                </div>
+                <div class="form-group">
+                    <label for="task-description">Task Description</label>
+                    <textarea id="task-description" class="form-control" rows="3" placeholder="Enter task description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="task-status">Task Status</label>
+                    <select id="task-status" class="form-control">
+                        <option value=0>Pending</option>
+                        <option value=1>In Progress</option>
+                        <option value=2>Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="task-due-date">Due Date</label>
+                    <input type="date" id="task-due-date" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary btn-block mt-3">Add Task</button>
+            </form>
+        </div>
     </div>
-    <div class="mb-3">
-        <label for="task-description" class="form-label">Task Description</label>
-        <textarea id="task-description" class="form-control"></textarea>
-    </div>
-    <div class="mb-3">
-        <label for="task-due-date" class="form-label">Due Date</label>
-        <input type="date" id="task-due-date" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <button type="submit" class="btn btn-primary">Add Task</button> <!-- Updated to dynamically change -->
-    </div>
-</form>
+</div>
 
 
 
 <script>
     // Fetch tasks from the API
+   
     function fetchTasks() {
         fetch('/api/tasks')
             .then(response => response.json())
             .then(tasks => {
                 const taskList = document.getElementById('task-list');
                 taskList.innerHTML = '';  // Clear the list before adding new items
-                tasks.forEach(task => {
 
+                // Mapping task status to background color class
+                const statusColorMap = {
+                    'Pending': 'background-color: rgba(240, 240, 240, 0.3);',     // Pending
+                    'In Progress': 'background-color: rgba(173, 216, 230, 0.2);',   // In Progress
+                    'Completed': 'background-color: rgba(144, 238, 144, 0.2);',   // Completed
+                    // add more status to color mappings here as needed
+                };
 
-                    // Format the due date
-                    const dueDate = new Date(task.dueDate);
-                    const formattedDate = dueDate.toISOString().split('T')[0];
-
-
-                    taskList.innerHTML += `
+                if (tasks.length === 0) {
+                    taskList.innerHTML = `
                         <tr>
-                            <td>${task.title}</td>
-                            <td>${task.completed ? 'Completed' : 'Pending'}</td>
-                            <td>${task.description}</td>  
-                            <td>${formattedDate}</td>      
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="editTask(${task.id})">Edit</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteTask(${task.id})">Delete</button>
+                            <td colspan="5" class="text-center">
+                                <div class="alert alert-info" role="alert">
+                                    <h4 class="alert-heading">No Tasks Found!</h4>
+                                    <p>You don't have any tasks at the moment. Take a break or add a new task to get started!</p>
+                                    <hr>
+                                    <p class="mb-0">Click on the 'Add Task' button to create your first task.</p>
+                                </div>
                             </td>
                         </tr>
                     `;
-                });
+                } else {
+                    tasks.forEach(task => {
+                        const formattedDueDate = new Date(task.dueDate).toISOString().split('T')[0];
+
+                        // Get the class for the task's status using the mapping
+                        const rowStyle = statusColorMap[task.status] || ''; // Default to empty if status not found in map
+
+                        taskList.innerHTML += `
+                            <tr style="${rowStyle}">
+                                <td>${task.title}</td>
+                                <td>${task.status}</td>
+                                <td>${task.description}</td>
+                                <td>${formattedDueDate}</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="editTask(${task.id})">Edit</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteTask(${task.id})">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
             });
     }
 
@@ -86,8 +123,8 @@
         const taskData = {
             title: document.getElementById('task-title').value,
             description: document.getElementById('task-description').value,
-            dueDate: document.getElementById('task-due-date').value,
-            completed: false
+            status: parseInt(document.getElementById('task-status').value), // New status field
+            dueDate: document.getElementById('task-due-date').value
         };
 
         if (editingTaskId) {
@@ -111,6 +148,8 @@
             // Add a new task
             fetch('/api/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(taskData) })
             .then(() => {
+                alert(JSON.stringify(taskData));
+                console.log(JSON.stringify(taskData))
                 fetchTasks();  // Reload tasks
                 resetForm();   // Reset the form
             });
@@ -133,6 +172,7 @@
                 document.getElementById('task-title').value = task.title;
                 document.getElementById('task-description').value = task.description;
                 document.getElementById('task-due-date').value = formattedDate;
+                document.getElementById('task-status').value = task.status;
 
                 // Change form header and button text
                 document.getElementById('form-header').textContent = 'Edit Task';

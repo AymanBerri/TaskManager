@@ -27,46 +27,80 @@ namespace TaskManager.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks(){
-            Console.WriteLine("WE ARE GETTING ALL THE TASKS");
-            return await _context.Tasks.ToListAsync();
+        public async Task<ActionResult<IEnumerable<object>>> GetTasks()
+        {
+            var tasks = await _context.Tasks
+                .Select(task => new
+                {
+                    task.Id,
+                    task.Title,
+                    task.Description,
+                    Status = task.Status.ToString().Replace('_', ' '),
+                    task.CreatedAt,
+                    task.DueDate
+                })
+                .ToListAsync();
+
+            return Ok(tasks);
         }
 
+
+
         [HttpGet("{id}")]
-        public async Task<ActionResult<TaskItem>> GetTaskItem(int id){
-            var taskItem = await _context.Tasks.FindAsync(id);
+        public async Task<ActionResult<object>> GetTaskItem(int id)
+        {
+            var taskItem = await _context.Tasks
+                .Where(task => task.Id == id)
+                .Select(task => new
+                {
+                    task.Id,
+                    task.Title,
+                    task.Description,
+                    Status = task.Status.ToString().Replace('_', ' '),
+                    task.CreatedAt,
+                    task.DueDate
+                })
+                .FirstOrDefaultAsync();
 
             if (taskItem == null)
             {
                 return NotFound();
             }
 
-            return taskItem;
+            return Ok(taskItem);
         }
 
-        [HttpPost] // create a new record
-        public async Task<ActionResult<TaskItem>> PostTaskItem(TaskItem taskItem){
+
+        [HttpPost] 
+        public async Task<ActionResult<TaskItem>> PostTaskItem([FromBody] TaskItem taskItem)
+        {
+            if (!ModelState.IsValid) 
+            {
+                Console.WriteLine("WE ARE INSIDE POST API BADREQUEST!!!!");
+                return BadRequest(ModelState); 
+            }
+
             Console.WriteLine("WE ARE INSIDE POST API");
+            Console.WriteLine($"Status: {taskItem.Status}"); // Log the status value
 
+            _context.Tasks.Add(taskItem); 
+            await _context.SaveChangesAsync(); 
 
-            _context.Tasks.Add(taskItem); //adding
-            await _context.SaveChangesAsync(); //waiting for changes "making it official"
+            // Log other values
+            Console.WriteLine($"Task Id: {taskItem.Id}");
+            Console.WriteLine($"Task Description: {taskItem.Description}");
+            Console.WriteLine($"Task Due Date: {taskItem.DueDate}");
 
-            // The response returns a 201 Created status, a link to the task, and the task data itself.
             return CreatedAtAction(nameof(GetTaskItem), new { id = taskItem.Id }, taskItem);
         }
+
+
 
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTaskItem(int id, TaskItem taskItem){
             if (id != taskItem.Id)
             {   
-
-                Console.WriteLine("id");
-                Console.WriteLine(id);
-                Console.WriteLine("taskITem");
-                Console.WriteLine(taskItem.Id);
-                Console.WriteLine("WE GOT A BAD REQUEST IDS DONT MATCH");
                 return BadRequest();
             }
 
