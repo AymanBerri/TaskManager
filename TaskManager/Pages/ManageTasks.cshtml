@@ -1,0 +1,98 @@
+@page
+@model TaskManager.Pages.ManageTasks
+@{
+    ViewData["Title"] = "ManageTasks";
+}
+
+
+<h2>Manage Tasks</h2>
+
+<!-- Task List -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>Task Name</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="task-list">
+        <!-- Task list will be dynamically populated here -->
+    </tbody>
+</table>
+
+<!-- Add New Task Form -->
+<h3>Add New Task</h3>
+<form id="add-task-form">
+    <div class="mb-3">
+        <label for="task-name" class="form-label">Task Name</label>
+        <input type="text" id="task-name" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Add Task</button>
+    </div>
+</form>
+
+<script>
+    // Fetch tasks from the API
+    function fetchTasks() {
+        fetch('/api/tasks')
+            .then(response => response.json())
+            .then(tasks => {
+                const taskList = document.getElementById('task-list');
+                taskList.innerHTML = '';  // Clear the list before adding new items
+                tasks.forEach(task => {
+                    taskList.innerHTML += `
+                        <tr>
+                            <td>${task.name}</td>
+                            <td>${task.completed ? 'Completed' : 'Pending'}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editTask(${task.id})">Edit</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteTask(${task.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+    }
+
+    // Add new task
+    document.getElementById('add-task-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const taskName = document.getElementById('task-name').value;
+        const taskData = { name: taskName, completed: false };
+
+        fetch('/api/tasks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(taskData)
+        })
+        .then(response => response.json())
+        .then(() => {
+            fetchTasks();  // Reload tasks
+            document.getElementById('task-name').value = '';  // Clear input
+        });
+    });
+
+    // Delete task
+    function deleteTask(id) {
+        fetch(`/api/tasks/${id}`, {
+            method: 'DELETE'
+        })
+        .then(() => {
+            fetchTasks();  // Reload tasks
+        });
+    }
+
+    // Edit task (not yet implemented)
+    function editTask(id) {
+        // You can implement this function to update tasks
+        alert(`Edit task with id: ${id}`);
+    }
+
+    // Initial task list fetch
+    fetchTasks();
+</script>

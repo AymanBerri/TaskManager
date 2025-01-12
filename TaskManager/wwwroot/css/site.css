@@ -1,31 +1,39 @@
 html {
-  font-size: 14px;
+  font-size: 14px; /* Default font size */
+  position: relative;
+  min-height: 100%; /* Ensure the page takes full height */
 }
 
+/* Increase font size on larger screens */
 @media (min-width: 768px) {
   html {
     font-size: 16px;
   }
 }
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+/* Button and input focus states */
+.btn:focus, 
+.btn:active:focus, 
+.btn-link.nav-link:focus, 
+.form-control:focus, 
+.form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* Body margin for footer offset */
 body {
-  margin-bottom: 60px;
+  margin-bottom: 60px; /* To prevent footer overlap on short pages */
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* Placeholder text styling */
+.form-floating > .form-control-plaintext::placeholder, 
+.form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color); /* Use Bootstrap secondary color */
+  text-align: end; /* Align placeholder text to the right for RTL */
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* Adjust placeholder text alignment on focus */
+.form-floating > .form-control-plaintext:focus::placeholder, 
+.form-floating > .form-control:focus::placeholder {
+  text-align: start; /* Align text to the left when input is focused */
 }
