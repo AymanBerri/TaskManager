@@ -21,7 +21,7 @@ A simple and user-friendly web application to manage tasks. Users can create, up
 
 1. **Clone the repository:**
 
-   git clone https://github.com/AymanBerri/task-manager.git
+   git clone https://github.com/AymanBerri/TaskManager.git
 
 2. **Install dependencies:**
    - For the backend, ensure you have .NET SDK installed.
